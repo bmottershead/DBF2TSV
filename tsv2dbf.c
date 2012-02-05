@@ -110,7 +110,6 @@ int main( int argc, char ** argv ) {
   
   // Create DBF file and add fields.
   dbf_file = DBFCreate(argv[2]);
-
   for (i=0; i<num_columns; i++) {
     int ret=DBFAddField(dbf_file, headers[i].value, headers[i].type, 
                 headers[i].width, headers[i].decimals);
@@ -120,9 +119,9 @@ int main( int argc, char ** argv ) {
 
   // Reset TSV file and skip over header row.
   fseek(tsv_file, 0, SEEK_SET);
-  while((c = getc(tsv_file)) != '\n');
+  while((c = getc(tsv_file)) != '\n') { /* empty loop */}
 
-  // Read the data rows and write them into the DBF file.
+  // Read the data rows and write the columns into the DBF file.
   for (i=0; !feof(tsv_file); i++) {
     int num_field_columns = get_columns(tsv_file, &columns, i+1);
 
@@ -158,7 +157,7 @@ int main( int argc, char ** argv ) {
   return EXIT_SUCCESS;
 }
 
-// Reads a data row from a TSV file and puts fields in to a
+// Reads a data row from a TSV file and puts fields into
 // "columns" array.
 int get_columns(FILE* tsv_file, column** columns, int row) {
   int n=0, width=0, decimals=0;

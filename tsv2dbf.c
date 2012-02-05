@@ -58,46 +58,46 @@ int main( int argc, char ** argv ) {
 
   // Default column type is integer.
   for (i=0; i<num_columns; i++)
-	headers[i].type = FTInteger;
+    headers[i].type = FTInteger;
 
   // Loop through data rows, determining the data type of each column.
   for (i=1; !feof(tsv_file); i++) {
-	int num_field_columns = get_columns(tsv_file, &columns, i+1);
+    int num_field_columns = get_columns(tsv_file, &columns, i+1);
 
-	if (num_field_columns==0)
-	  continue;
-	if (num_field_columns != num_columns) {
-	  fprintf(stderr, "Wrong number of fields at row %d. Row ignored.", i+1);
-	  continue;
-	} 
-	for (j=0; j<num_columns; j++) {
-	  headers[j].width=max(columns[j].width, headers[j].width);
-	  switch(columns[j].type) {
-	  case FTString:
-		headers[j].type=FTString;
-		break;
-	  case FTDouble:
-		if (headers[j].type==FTInteger) {
-		  headers[j].type=FTDouble;
-		  headers[j].decimals=columns[j].decimals;
-		} else if (headers[j].type==FTDouble) {
-		  headers[j].decimals=max(columns[j].decimals, headers[j].decimals);
-		} 
-		break;
-	  default:
-		break;
-	  }
-	}
+    if (num_field_columns==0)
+      continue;
+    if (num_field_columns != num_columns) {
+      fprintf(stderr, "Wrong number of fields at row %d. Row ignored.", i+1);
+      continue;
+    } 
+    for (j=0; j<num_columns; j++) {
+      headers[j].width=max(columns[j].width, headers[j].width);
+      switch(columns[j].type) {
+      case FTString:
+        headers[j].type=FTString;
+        break;
+      case FTDouble:
+        if (headers[j].type==FTInteger) {
+          headers[j].type=FTDouble;
+          headers[j].decimals=columns[j].decimals;
+        } else if (headers[j].type==FTDouble) {
+          headers[j].decimals=max(columns[j].decimals, headers[j].decimals);
+        } 
+        break;
+      default:
+        break;
+      }
+    }
   }
   
   // Create DBF file and add fields.
   dbf_file = DBFCreate(argv[2]);
 
   for (i=0; i<num_columns; i++) {
-	int ret=DBFAddField(dbf_file, headers[i].value, headers[i].type, 
-				headers[i].width, headers[i].decimals);
-	if (ret==-1) 
-	  fprintf(stderr,"Error adding field %d to DBF file\n",i);
+    int ret=DBFAddField(dbf_file, headers[i].value, headers[i].type, 
+                headers[i].width, headers[i].decimals);
+    if (ret==-1) 
+      fprintf(stderr,"Error adding field %d to DBF file\n",i);
   }
 
   // Reset TSV file and skip over header row.
@@ -106,33 +106,33 @@ int main( int argc, char ** argv ) {
 
   // Read the data rows and write them into the DBF file.
   for (i=0; !feof(tsv_file); i++) {
-	int num_field_columns = get_columns(tsv_file, &columns, i+1);
+    int num_field_columns = get_columns(tsv_file, &columns, i+1);
 
-	if (num_field_columns != num_columns)
-	  continue;
+    if (num_field_columns != num_columns)
+      continue;
 
-	for (j=0; j<num_columns; j++) {
-	  int ret = 0;
-	  switch (headers[j].type) {
-	  case FTInteger:
-		ret=DBFWriteIntegerAttribute(dbf_file, i, j, atoi(columns[j].value));
-		break;
-	  case FTDouble:
-		ret=DBFWriteDoubleAttribute(dbf_file, i, j, atof(columns[j].value));
-		break;
-	  case FTString:
-		ret=DBFWriteStringAttribute(dbf_file, i, j, columns[j].value);
-		break;
-	  // These won't occur, but are mentioned to avoid a compiler warning.
-	  case FTLogical:
-	  case FTInvalid:
-		break;
-	  }
-	  if (ret==0) 
-		fprintf(stderr,"Error writing column %d of row %d\n",j,i+1);
-	}
+    for (j=0; j<num_columns; j++) {
+      int ret = 0;
+      switch (headers[j].type) {
+      case FTInteger:
+        ret=DBFWriteIntegerAttribute(dbf_file, i, j, atoi(columns[j].value));
+        break;
+      case FTDouble:
+        ret=DBFWriteDoubleAttribute(dbf_file, i, j, atof(columns[j].value));
+        break;
+      case FTString:
+        ret=DBFWriteStringAttribute(dbf_file, i, j, columns[j].value);
+        break;
+      // These won't occur, but are mentioned to avoid a compiler warning.
+      case FTLogical:
+      case FTInvalid:
+        break;
+      }
+      if (ret==0) 
+        fprintf(stderr,"Error writing column %d of row %d\n",j,i+1);
+    }
   }
-	  
+      
   // Finish
   free(columns);
   free(headers);
@@ -147,43 +147,43 @@ int get_columns(FILE* tsv_file, column** columns, int row) {
 
   // Initialize columns array.
   if (*columns==NULL)
-	*columns = malloc(MAX_COLUMNS*sizeof(column));
+    *columns = malloc(MAX_COLUMNS*sizeof(column));
   memset(*columns, 0, MAX_COLUMNS*sizeof(column));
 
   // Split line of TSV file into columns and set type, decimals, and width.
   while ((c=getc(tsv_file)) && !feof(tsv_file) && width<MAX_COLUMN_WIDTH && n<MAX_COLUMNS) {
-	if (c=='\n' || c=='\t') {
-	  (*columns)[n].type = type;
-	  (*columns)[n].width = width;
-	  if (type==FTDouble) 
-		(*columns)[n].decimals = decimals;
-	  n++;
-	  type = FTInteger;
-	  width = 0;
-	  decimals = 0;
-	  if (c=='\n')
-		break;
-	} else {
-	  (*columns)[n].value[width++] = c;
-	  if (isdigit(c)) {
-		if (type==FTDouble)
-		  decimals++;
-	  } else {
-		switch(type) {
-		case FTInteger:
-		  type = (c=='.'? FTDouble: FTString);
-		  break;
-		default:
-		  type = FTString;
-		}
-	  }
-	}
+    if (c=='\n' || c=='\t') {
+      (*columns)[n].type = type;
+      (*columns)[n].width = width;
+      if (type==FTDouble) 
+        (*columns)[n].decimals = decimals;
+      n++;
+      type = FTInteger;
+      width = 0;
+      decimals = 0;
+      if (c=='\n')
+        break;
+    } else {
+      (*columns)[n].value[width++] = c;
+      if (isdigit(c)) {
+        if (type==FTDouble)
+          decimals++;
+      } else {
+        switch(type) {
+        case FTInteger:
+          type = (c=='.'? FTDouble: FTString);
+          break;
+        default:
+          type = FTString;
+        }
+      }
+    }
   }
   
   if (width>=MAX_COLUMN_WIDTH)
-	fprintf(stderr,"Column exceeds maximum width at row %d\n", row);
+    fprintf(stderr,"Column exceeds maximum width at row %d\n", row);
   if (n>=MAX_COLUMNS)
-	fprintf(stderr,"Too many columns at row %d\n", row);
+    fprintf(stderr,"Too many columns at row %d\n", row);
   return  n;
 }
 
@@ -191,20 +191,20 @@ int get_columns(FILE* tsv_file, column** columns, int row) {
 char* type_to_str(DBFFieldType t) {
   switch(t) {
   case FTInteger: 
-	return "FTInteger";
+    return "FTInteger";
   case FTString: 
-	return "FTString";
+    return "FTString";
   case FTDouble: 
-	return "FTDouble";
+    return "FTDouble";
   case FTLogical: 
-	return "FTLogical";
+    return "FTLogical";
   default:
   case FTInvalid: 
-	return "FTInvalid";
+    return "FTInvalid";
   }
 }
   
 void dump_column(char* tag, int i, int j, column* col) {
   fprintf(stderr,"%s [%d,%d] %s %d %d %s\n", tag, i, j, 
-		  type_to_str(col->type), col->width, col->decimals, col->value);
+          type_to_str(col->type), col->width, col->decimals, col->value);
 }

@@ -52,12 +52,29 @@ int main( int argc, char ** argv ) {
   column    *headers = NULL;
   char      c;
 
+  // Check that there are two arguments, the input TSV file and
+  // the output DBF file.
+  if (argc!=3) {
+    fprintf(stderr, "Usage: tsv2dbf tsv-file dbf-file\n");
+    return EXIT_FAILURE;
+  }
+  
   // Open TSV file and read header row.
   tsv_file = fopen(argv[1],"r");
-  num_columns = get_columns(tsv_file, &headers, 1);
+  if (tsv_file == NULL) {
+    fprintf(stderr, "%s cannot be opened\n", argv[1]);
+    return EXIT_FAILURE;
+  }
 
-  // Default column type is integer.
+  // Read  header row
+  num_columns = get_columns(tsv_file, &headers, 1);
+  if (num_columns <= 0) {
+    fprintf(stderr, "%s can't be read or is not a DBF file\n", argv[1]);
+    return EXIT_FAILURE;
+  }
+    
   for (i=0; i<num_columns; i++)
+    // Default column type is integer.
     headers[i].type = FTInteger;
 
   // Loop through data rows, determining the data type of each column.
@@ -70,6 +87,7 @@ int main( int argc, char ** argv ) {
       fprintf(stderr, "Wrong number of fields at row %d. Row ignored.", i+1);
       continue;
     } 
+
     for (j=0; j<num_columns; j++) {
       headers[j].width=max(columns[j].width, headers[j].width);
       switch(columns[j].type) {
@@ -140,6 +158,8 @@ int main( int argc, char ** argv ) {
   return EXIT_SUCCESS;
 }
 
+// Reads a data row from a TSV file and puts fields in to a
+// "columns" array.
 int get_columns(FILE* tsv_file, column** columns, int row) {
   int n=0, width=0, decimals=0;
   char c = 0;
@@ -188,6 +208,7 @@ int get_columns(FILE* tsv_file, column** columns, int row) {
 }
 
 
+// Helper for dump_column, converts field type to string.
 char* type_to_str(DBFFieldType t) {
   switch(t) {
   case FTInteger: 
@@ -204,6 +225,7 @@ char* type_to_str(DBFFieldType t) {
   }
 }
   
+// For debugging, dumps column information on stderr.
 void dump_column(char* tag, int i, int j, column* col) {
   fprintf(stderr,"%s [%d,%d] %s %d %d %s\n", tag, i, j, 
           type_to_str(col->type), col->width, col->decimals, col->value);

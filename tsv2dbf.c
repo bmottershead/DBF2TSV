@@ -59,25 +59,36 @@ int main( int argc, char ** argv ) {
     return EXIT_FAILURE;
   }
   
+  // Open DBF file
+  dbf_file = DBFCreate(argv[2]);
+  if (dbf_file == NULL) {
+    fprintf(stderr, "%s file cannot be created\n", argv[2]);
+    return EXIT_FAILURE;
+  }
+
   // Open TSV file and read header row.
   tsv_file = fopen(argv[1],"r");
   if (tsv_file == NULL) {
     fprintf(stderr, "%s cannot be opened\n", argv[1]);
+	if (dbf_file)
+	  DBFClose(dbf_file);
     return EXIT_FAILURE;
   }
 
-  // Read  header row
+  // Read  header row of TSV file
   num_columns = get_columns(tsv_file, &headers, 1);
   if (num_columns <= 0) {
     fprintf(stderr, "%s can't be read or is not a DBF file\n", argv[1]);
     return EXIT_FAILURE;
   }
     
+  // Set default column type to FTInteger.
   for (i=0; i<num_columns; i++)
-    // Default column type is integer.
     headers[i].type = FTInteger;
 
-  // Loop through data rows, determining the data type of each column.
+  // Loop through TSV data rows, determining the 
+  // most restrictive data type for each column which will
+  // permit all the actual TSV values to be loaded.
   for (i=1; !feof(tsv_file); i++) {
     int num_field_columns = get_columns(tsv_file, &columns, i+1);
 
@@ -108,8 +119,7 @@ int main( int argc, char ** argv ) {
     }
   }
   
-  // Create DBF file and add fields.
-  dbf_file = DBFCreate(argv[2]);
+  // Define the fields of the  DBF file.
   for (i=0; i<num_columns; i++) {
     int ret=DBFAddField(dbf_file, headers[i].value, headers[i].type, 
                 headers[i].width, headers[i].decimals);
@@ -121,7 +131,7 @@ int main( int argc, char ** argv ) {
   fseek(tsv_file, 0, SEEK_SET);
   while((c = getc(tsv_file)) != '\n') { /* empty loop */}
 
-  // Read the data rows and write the columns into the DBF file.
+  // Read the data rows and write the column values into the DBF file.
   for (i=0; !feof(tsv_file); i++) {
     int num_field_columns = get_columns(tsv_file, &columns, i+1);
 

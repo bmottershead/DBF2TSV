@@ -1,0 +1,49 @@
+
+DBF2TSV provides two Unix command line utilities, dbf2tsv
+and tsv2dbf.
+
+db2tsv will convert a dBase/xBase database file with a 
+maximum of 30 fields to a Tab-Separated Value (TSV) file.  
+The TSV file is written on stdout.  The command line is:
+
+   db2tsv dbf-filename
+
+tsv2dbf will create a dBase/xBase file from a Tab-Separated
+Value (TSV) file.  The input may have a maximum of 30
+columns, with a maximum field length of 4096 bytes and a
+maximum line length of 4096 bytes.  The lines in the file
+must be terminated Unix-style by line-feeds.  The first line
+in the file gives the tab-separated column names.  In dBase
+files the maximum field name length is 12 bytes, but tsv2dbf
+does not check this. The remaining lines are the tab-separated 
+field values. The command line is:
+
+   tsv2dbf tsv-filename dbf-filename
+
+Build the utilities as follows:
+
+   cd <source-dir> 
+   make
+
+The utilities have been tested only on a Linux Fedora 15
+system, built with gcc version 4.6.0.
+
+The source files dbf.c and dbf.h are adapted from the
+shapelib library. (See http://shapelib.maptools.org)
+Shapelib is a library designed for handling geographic data
+in xBase format files.  The only substantive change I have
+made to shapelib is to move all the code related to dBase
+file handling into dbf.c and dbf.h. All the rest of the
+shapelib functionality has been removed.  These two files
+carry the copyright notice and permission notice from
+shapelib's original author, Frank Warmerdam.  Frank's code
+does all the hard stuff.
+
+I have placed the rest of the source into the public domain,
+as it is almost a trivial addition to the shapelib code
+(though probably not trivial enough to be without bugs).
+
+Brian Mottershead 
+(brian@mottershead.us)
+February 5, 2012
+

@@ -2,11 +2,11 @@
 DBF2TSV provides two Unix command line utilities, dbf2tsv
 and tsv2dbf.
 
-db2tsv will convert a dBase/xBase database file with a 
+dbf2tsv will convert a dBase/xBase database file with a 
 maximum of 30 fields to a Tab-Separated Value (TSV) file.  
 The TSV file is written on stdout.  The command line is:
 
-   db2tsv dbf-filename
+   dbf2tsv dbf-filename
 
 tsv2dbf will create a dBase/xBase file from a Tab-Separated
 Value (TSV) file.  The input may have a maximum of 30

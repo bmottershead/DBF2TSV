@@ -70,8 +70,7 @@ int main( int argc, char ** argv ) {
   tsv_file = fopen(argv[1],"r");
   if (tsv_file == NULL) {
     fprintf(stderr, "%s cannot be opened\n", argv[1]);
-    if (dbf_file)
-      DBFClose(dbf_file);
+    DBFClose(dbf_file);
     return EXIT_FAILURE;
   }
 

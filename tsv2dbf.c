@@ -66,7 +66,7 @@ int main( int argc, char ** argv ) {
     return EXIT_FAILURE;
   }
 
-  // Open TSV file and read header row.
+  // Open TSV file.
   tsv_file = fopen(argv[1],"r");
   if (tsv_file == NULL) {
     fprintf(stderr, "%s cannot be opened\n", argv[1]);

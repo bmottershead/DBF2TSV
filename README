@@ -43,7 +43,8 @@ Thus, tabs are always considered to be field separators.
 
 The TSV files are assumed to be ASCII. Multi-byte characters are not
 supported.  Giving tsv2dbf an input file with multi-byte, non-ASCII,
-characters would most likely produce something unexpected.
+characters would most likely produce something unexpected, possibly 
+without warning.
 
 5. Performance
 

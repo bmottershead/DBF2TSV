@@ -19,8 +19,9 @@
 #define MAX_COLUMN_WIDTH 4096
 #define MAX_LINE_LENGTH  4096
 #define MAX_COLUMNS      30
-
-#define  max(a,b) (((a)>=(b))?(a):(b))
+#define RS '\n'
+#define FS '\t'
+#define max(a,b) (((a)>=(b))?(a):(b))
 
 int debug = 0;
 
@@ -39,8 +40,9 @@ typedef struct column_t {
 ** Forward declarations
 */
 
-int get_columns(FILE* tsv_file, column** columns, int row);
-void dump_column(char* tag, int i, int j, column* col);
+int   get_columns(FILE* tsv_file, column** columns, int row);
+void  dump_column(char* tag, int i, int j, column* col);
+char* type_to_str(DBFFieldType t);
 
 /*
 ** Main
@@ -49,7 +51,7 @@ void dump_column(char* tag, int i, int j, column* col);
 int main( int argc, char ** argv ) {
   FILE*     tsv_file = NULL;
   DBFHandle dbf_file = NULL;
-  int       num_columns, i, j;
+  int       num_columns, i, j, rows=0, values=0;
   column    *columns = NULL;
   column    *fields = NULL;
   char      c;
@@ -132,8 +134,6 @@ int main( int argc, char ** argv ) {
   
   // Define the fields of the  DBF file.
   for (i=0; i<num_columns; i++) {
-    if (debug) 
-      dump_column("fld", 0, i, &fields[i]);
     int ret=DBFAddField(dbf_file, fields[i].value, fields[i].type, 
                 fields[i].width, fields[i].decimals);
     if (ret==-1) 
@@ -142,7 +142,7 @@ int main( int argc, char ** argv ) {
 
   // Reset TSV file and skip over header row.
   fseek(tsv_file, 0, SEEK_SET);
-  while((c = getc(tsv_file)) != '\n') { /* empty loop */}
+  while((c = getc(tsv_file)) != RS) { /* empty loop */}
 
   // Read the data rows and write the column values into the DBF file.
   for (i=0; !feof(tsv_file); i++) {
@@ -151,14 +151,17 @@ int main( int argc, char ** argv ) {
     if (num_field_columns != num_columns)
       continue;
 
+    rows++;
     for (j=0; j<num_columns; j++) {
       int ret=0;
 
       if (columns[j].value[0]==0)
         continue;
+
       if (debug==2)
         dump_column("row", i, j, &columns[j]);
 
+      values++;
       switch (fields[j].type) {
       case FTInteger:
         ret=DBFWriteIntegerAttribute(dbf_file, i, j, atoi(columns[j].value));
@@ -175,18 +178,19 @@ int main( int argc, char ** argv ) {
         break;
       }
       if (ret==0) 
-        fprintf(stderr,"Error writing column %d of row %d\n",j,i+1);
+        fprintf(stderr,"Error writing column %d of row %d\n",j,rows);
     }
   }
-  
-  if (debug) {
-    for (i=0; i<DBFGetFieldCount(dbf_file); i++) {
-      int width, decimals; 
-      char title[12];
-      DBFFieldType type = DBFGetFieldInfo(dbf_file, i, title, &width, &decimals);
-      fprintf(stderr, "%d %s %d %d %d\n", i, title, type, width, decimals);
-    }
+
+
+  // Some information on stderr
+  for (i=0; i<DBFGetFieldCount(dbf_file); i++) {
+    int width, decimals; 
+    char title[12];
+    DBFFieldType type = DBFGetFieldInfo(dbf_file, i, title, &width, &decimals);
+    fprintf(stderr, "%d %s %s %d.%d\n", i, title, type_to_str(type), width, decimals);
   }
+  fprintf(stderr, "Data rows: %d, Non-null values: %d\n", rows, values);
 
   // Finish
   free(columns);
@@ -212,7 +216,7 @@ int get_columns(FILE* tsv_file, column** columns, int row) {
          && !feof(tsv_file) 
          && width<MAX_COLUMN_WIDTH 
          && n<MAX_COLUMNS) {
-    if (c=='\n' || c=='\t') {
+    if (c==RS || c==FS) {
       (*columns)[n].type = type;
       (*columns)[n].width = width;
       if (type==FTDouble) 
@@ -221,7 +225,7 @@ int get_columns(FILE* tsv_file, column** columns, int row) {
       type = FTInteger;
       width = 0;
       decimals = 0;
-      if (c=='\n')
+      if (c==RS)
         break;
     } else {
       (*columns)[n].value[width++] = c;
@@ -247,8 +251,13 @@ int get_columns(FILE* tsv_file, column** columns, int row) {
   return  n;
 }
 
+// For debugging, dumps column information on stderr.
+void dump_column(char* tag, int i, int j, column* col) {
+  fprintf(stderr,"%s [%d,%d] %s %d %d %s\n", tag, i, j, 
+          type_to_str(col->type), col->width, col->decimals, col->value);
+}
 
-// Helper for dump_column, converts field type to string.
+// Converts field type to string.
 char* type_to_str(DBFFieldType t) {
   switch(t) {
   case FTInteger: 
@@ -265,8 +274,3 @@ char* type_to_str(DBFFieldType t) {
   }
 }
   
-// For debugging, dumps column information on stderr.
-void dump_column(char* tag, int i, int j, column* col) {
-  fprintf(stderr,"%s [%d,%d] %s %d %d %s\n", tag, i, j, 
-          type_to_str(col->type), col->width, col->decimals, col->value);
-}

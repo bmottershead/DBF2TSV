@@ -14,6 +14,9 @@
 #include <string.h>
 #include "dbf.h"
 
+#define FS "\t"
+#define RS "\n"
+
 int main(int argc, char **argv){
   DBFHandle dbf_file = NULL; 
   int       width, decimals, i, r;
@@ -37,16 +40,16 @@ int main(int argc, char **argv){
   for (i = 0; i < DBFGetFieldCount(dbf_file); i++ ) {
     DBFGetFieldInfo(dbf_file, i, title, &width, &decimals);
     if (i>0)
-      printf("\t");
+      printf(FS);
     printf("%s", title);
   }
-  printf( "\n" );
+  printf(RS);
 
   // Data rows. Prints values of fields, tab-separated.
   for (r = 0; r < DBFGetRecordCount(dbf_file); r++) {
     for (i = 0; i < DBFGetFieldCount(dbf_file); i++) {
       if (i>0)
-        printf("\t");
+        printf(FS);
       if (!DBFIsAttributeNULL(dbf_file, r, i)) {
         switch (DBFGetFieldInfo(dbf_file, i, title, &width, &decimals)) {
         case FTString:
@@ -66,7 +69,7 @@ int main(int argc, char **argv){
         }
       }
     }
-    printf("\n");
+    printf(RS);
     fflush( stdout );
   }
 

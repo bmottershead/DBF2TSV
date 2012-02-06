@@ -3,9 +3,9 @@ DBF2TSV provides two Unix command line programs, dbf2tsv and tsv2dbf.
 
 1. dbf2tsv
 
-dbf2tsv will convert a dBase/xBase database file with a maximum of 30
-fields to a Tab-Separated Value (TSV) file.  The TSV file is written
-on stdout.  The command line is:
+dbf2tsv will convert a dBase/xBase database file to a Tab-Separated
+Value (TSV) file.  The TSV file is written on stdout.  The command
+line is:
 
    dbf2tsv dbf-filename
 
@@ -31,23 +31,31 @@ Build the package as follows:
    cd <source-dir> 
    make
 
-The utilities have been tested only on a Linux Fedora 15 32-bit
-system, built with gcc version 4.6.0.
+The utilities have been successfully built and tested with gcc version
+4.6.0 on a Linux Fedora 15 32-bit system.
 
-4. Licensing
+4. Limitations
+
+The xBase format does not support multi-byte characters. A TSV input
+file to tsv2dbf with multi-byte (non-ASCII) characters would most likely
+produce something unexpected.
+
+5. Shapelib Acknowledgement
 
 The source files dbf.c and dbf.h are adapted from the shapelib
 library. (See http://shapelib.maptools.org/) Shapelib is a library
 designed for handling geographic data in xBase format files.  I have
-moved all the shapelib code related to dBase file handling into dbf.c
+moved all the shapelib code related to xBase file handling into dbf.c
 and dbf.h, reformatted it somewhat, and removed the rest of shapelib.
-dbf.c and dbf.h carry the copyright notice and permission notice from
-shapelib's original author, Frank Warmerdam.  Frank's code does all
-the real work in this package.
+dbf.c and dbf.h carry the copyright notice and MIT-like license notice
+from shapelib's original author, Frank Warmerdam.  Frank's code does
+all the real work in this package.
 
 I am the author of the rest of the code.  I have placed it into the
 public domain, as it is almost a trivial addition to the shapelib code
-(though probably not trivial enough to be without bugs).
+(though probably not trivial enough to be without bugs).  This code
+could also be built against the "official" shapelib source, though this 
+hasn't been tested.
 
 Brian Mottershead (brian at mottershead.us) 
 February 5, 2012

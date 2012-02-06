@@ -12,11 +12,10 @@ tsv2dbf will create a dBase/xBase file from a Tab-Separated
 Value (TSV) file.  The input may have a maximum of 30
 columns, with a maximum field length of 4096 bytes and a
 maximum line length of 4096 bytes.  The lines in the file
-must be terminated Unix-style by line-feeds.  The first line
-in the file gives the tab-separated column names.  In dBase
-files the maximum field name length is 12 bytes, but tsv2dbf
-does not check this. The remaining lines are the tab-separated 
-field values. The command line is:
+must be terminated, Unix-style, by line-feeds.  The first line
+in the file gives the tab-separated field names. Fields names
+are truncated to 10 bytes. The remaining lines are the tab-
+separated field values. The command line is:
 
    tsv2dbf tsv-filename dbf-filename
 

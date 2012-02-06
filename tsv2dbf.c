@@ -22,6 +22,8 @@
 
 #define  max(a,b) (((a)>=(b))?(a):(b))
 
+int debug = 0;
+
 /*
 ** Struct for holding columns (headers and field values)
 */
@@ -75,19 +77,17 @@ int main( int argc, char ** argv ) {
   }
 
   // Read  header row of TSV file
+  if (debug) fprintf(stderr,"HEADERS\n");
   num_columns = get_columns(tsv_file, &headers, 1);
   if (num_columns <= 0) {
     fprintf(stderr, "%s can't be read or is not a DBF file\n", argv[1]);
     return EXIT_FAILURE;
   }
-    
-  // Set default column type to FTInteger.
-  for (i=0; i<num_columns; i++)
-    headers[i].type = FTInteger;
 
   // Loop through TSV data rows, determining the 
   // most restrictive data type for each column which will
   // permit all the actual TSV values to be loaded.
+  if (debug) fprintf(stderr,"DATAROWS\n");
   for (i=1; !feof(tsv_file); i++) {
     int num_field_columns = get_columns(tsv_file, &columns, i+1);
 
@@ -97,7 +97,11 @@ int main( int argc, char ** argv ) {
       fprintf(stderr, "Wrong number of fields at row %d. Row ignored.", i+1);
       continue;
     } 
-
+	for (j=0; j<num_columns; j++) {
+	  headers[j].type=FTInteger;
+	  headers[j].width=0;
+	  headers[j].decimals=0;
+	}
     for (j=0; j<num_columns; j++) {
       headers[j].width=max(columns[j].width, headers[j].width);
       switch(columns[j].type) {
@@ -120,6 +124,7 @@ int main( int argc, char ** argv ) {
   
   // Define the fields of the  DBF file.
   for (i=0; i<num_columns; i++) {
+	headers[i].value[11]='\0';
     int ret=DBFAddField(dbf_file, headers[i].value, headers[i].type, 
                 headers[i].width, headers[i].decimals);
     if (ret==-1) 
@@ -138,7 +143,9 @@ int main( int argc, char ** argv ) {
       continue;
 
     for (j=0; j<num_columns; j++) {
-      int ret = 0;
+      int ret=0;
+	  if (debug) dump_column("hdr", 0, j, &headers[j]);
+	  if (debug) dump_column("col", i, j, &columns[j]);
       switch (headers[j].type) {
       case FTInteger:
         ret=DBFWriteIntegerAttribute(dbf_file, i, j, atoi(columns[j].value));
@@ -158,7 +165,16 @@ int main( int argc, char ** argv ) {
         fprintf(stderr,"Error writing column %d of row %d\n",j,i+1);
     }
   }
-      
+  
+  if (debug) {
+	for (i=0; i<DBFGetFieldCount(dbf_file); i++) {
+	  int width, decimals; 
+	  char title[12];
+	  DBFFieldType type = DBFGetFieldInfo(dbf_file, i, title, &width, &decimals);
+	  fprintf(stderr, "%d %s %d %d %d\n", i, title, type, width, decimals);
+	}
+  }
+
   // Finish
   free(columns);
   free(headers);
@@ -183,6 +199,7 @@ int get_columns(FILE* tsv_file, column** columns, int row) {
     if (c=='\n' || c=='\t') {
       (*columns)[n].type = type;
       (*columns)[n].width = width;
+	  if (debug) fprintf(stderr,"Column: %d %d %d\n", type, width, decimals);
       if (type==FTDouble) 
         (*columns)[n].decimals = decimals;
       n++;

@@ -1,7 +1,7 @@
-CFLAGS	=	-g -Wall -fPIC
+CFLAGS = -g -Wall -fPIC
 TARGETS = dbf2tsv tsv2dbf
 
-all : $(TARGETS)
+all: $(TARGETS)
 
 dbf2tsv: dbf2tsv.c dbf.c dbf.h
 	$(CC) $(CFLAGS) dbf2tsv.c dbf.c -o dbf2tsv

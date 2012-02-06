@@ -77,7 +77,6 @@ int main( int argc, char ** argv ) {
   }
 
   // Read  header row of TSV file for titles.
-  if (debug) fprintf(stderr,"HEADER ROW\n");
   num_columns = get_columns(tsv_file, &fields, 1);
   if (num_columns <= 0) {
     fprintf(stderr, "%s can't be read or is not a DBF file\n", argv[1]);
@@ -94,7 +93,6 @@ int main( int argc, char ** argv ) {
   // Loop through TSV data rows, determining the 
   // most restrictive data type for each column which will
   // permit all the actual TSV values to be loaded.
-  if (debug) fprintf(stderr,"DATA ROWS\n");
   for (i=1; !feof(tsv_file); i++) {
     int num_field_columns = get_columns(tsv_file, &columns, i+1);
 
@@ -123,11 +121,19 @@ int main( int argc, char ** argv ) {
       }
     }
   }
+
+  // Make columns that had all empty values into strings.
+  for (j=0; j<num_columns; j++) {
+    if (fields[j].width==0) {
+      fields[j].type=FTString;
+      fields[j].width=1;
+    }
+  }
   
   // Define the fields of the  DBF file.
   for (i=0; i<num_columns; i++) {
     if (debug) 
-      dump_column("add", 0, i, &fields[i]);
+      dump_column("fld", 0, i, &fields[i]);
     int ret=DBFAddField(dbf_file, fields[i].value, fields[i].type, 
                 fields[i].width, fields[i].decimals);
     if (ret==-1) 
@@ -147,8 +153,12 @@ int main( int argc, char ** argv ) {
 
     for (j=0; j<num_columns; j++) {
       int ret=0;
-      if (debug)
-        dump_column("col", i, j, &columns[j]);
+
+      if (columns[j].value[0]==0)
+        continue;
+      if (debug==2)
+        dump_column("row", i, j, &columns[j]);
+
       switch (fields[j].type) {
       case FTInteger:
         ret=DBFWriteIntegerAttribute(dbf_file, i, j, atoi(columns[j].value));
@@ -198,7 +208,10 @@ int get_columns(FILE* tsv_file, column** columns, int row) {
   memset(*columns, 0, MAX_COLUMNS*sizeof(column));
 
   // Split line of TSV file into columns and set type, decimals, and width.
-  while ((c=getc(tsv_file)) && !feof(tsv_file) && width<MAX_COLUMN_WIDTH && n<MAX_COLUMNS) {
+  while ((c=getc(tsv_file)) 
+         && !feof(tsv_file) 
+         && width<MAX_COLUMN_WIDTH 
+         && n<MAX_COLUMNS) {
     if (c=='\n' || c=='\t') {
       (*columns)[n].type = type;
       (*columns)[n].width = width;

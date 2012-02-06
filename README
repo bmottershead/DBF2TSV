@@ -36,26 +36,37 @@ The utilities have been successfully built and tested with gcc version
 
 4. Limitations
 
-The xBase format does not support multi-byte characters. A TSV input
-file to tsv2dbf with multi-byte (non-ASCII) characters would most likely
-produce something unexpected.
+The TSV format accepted by tsv2dbf and output by dbf2tsv is
+simplified.  In particular, quote marks (") are not special, and tabs
+may not be included in values by surrounding the values by quotes.
+Thus, tabs are always considered to be field separators.
 
-5. Shapelib Acknowledgement
+The TSV files are assumed to be ASCII. Multi-byte characters are not
+supported.  Giving tsv2dbf an input file with multi-byte, non-ASCII,
+characters would most likely produce something unexpected.
+
+5. Performance
+
+On a 2.27GHz desktop-class PC with 7GB of memory running Linux,
+tsv2dbf processes about 370K non-null values per second, and dbf2tsv,
+about 1.3M non-null values per second. Both are mainly constrained by
+the disk I/O.
+
+6. Shapelib Acknowledgement
 
 The source files dbf.c and dbf.h are adapted from the shapelib
 library. (See http://shapelib.maptools.org/) Shapelib is a library
 designed for handling geographic data in xBase format files.  I have
 moved all the shapelib code related to xBase file handling into dbf.c
-and dbf.h, reformatted it somewhat, and removed the rest of shapelib.
-dbf.c and dbf.h carry the copyright notice and MIT-like license notice
-from shapelib's original author, Frank Warmerdam.  Frank's code does
-all the real work in this package.
+and dbf.h, reformatted it somewhat, and removed the rest of the
+shapelib code. dbf.c and dbf.h carry the copyright notice and MIT-like
+license notice from shapelib's original author, Frank Warmerdam.
+Frank's code does all the real work in this package.
 
 I am the author of the rest of the code.  I have placed it into the
 public domain, as it is almost a trivial addition to the shapelib code
-(though probably not trivial enough to be without bugs).  This code
-could also be built against the "official" shapelib source, though this 
-hasn't been tested.
+(though probably not trivial enough to be without bugs).
+
 
 Brian Mottershead (brian at mottershead.us) 
 February 5, 2012

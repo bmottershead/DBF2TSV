@@ -1,4 +1,4 @@
-CFLAGS = -g -Wall -fPIC
+CFLAGS = -Wall -fPIC -O4
 TARGETS = dbf2tsv tsv2dbf
 
 all: $(TARGETS)

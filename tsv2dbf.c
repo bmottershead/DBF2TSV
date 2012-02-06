@@ -97,11 +97,11 @@ int main( int argc, char ** argv ) {
       fprintf(stderr, "Wrong number of fields at row %d. Row ignored.", i+1);
       continue;
     } 
-	for (j=0; j<num_columns; j++) {
-	  headers[j].type=FTInteger;
-	  headers[j].width=0;
-	  headers[j].decimals=0;
-	}
+    for (j=0; j<num_columns; j++) {
+      headers[j].type=FTInteger;
+      headers[j].width=0;
+      headers[j].decimals=0;
+    }
     for (j=0; j<num_columns; j++) {
       headers[j].width=max(columns[j].width, headers[j].width);
       switch(columns[j].type) {
@@ -124,7 +124,7 @@ int main( int argc, char ** argv ) {
   
   // Define the fields of the  DBF file.
   for (i=0; i<num_columns; i++) {
-	headers[i].value[11]='\0';
+    headers[i].value[11]='\0';
     int ret=DBFAddField(dbf_file, headers[i].value, headers[i].type, 
                 headers[i].width, headers[i].decimals);
     if (ret==-1) 
@@ -144,8 +144,8 @@ int main( int argc, char ** argv ) {
 
     for (j=0; j<num_columns; j++) {
       int ret=0;
-	  if (debug) dump_column("hdr", 0, j, &headers[j]);
-	  if (debug) dump_column("col", i, j, &columns[j]);
+      if (debug) dump_column("hdr", 0, j, &headers[j]);
+      if (debug) dump_column("col", i, j, &columns[j]);
       switch (headers[j].type) {
       case FTInteger:
         ret=DBFWriteIntegerAttribute(dbf_file, i, j, atoi(columns[j].value));
@@ -167,12 +167,12 @@ int main( int argc, char ** argv ) {
   }
   
   if (debug) {
-	for (i=0; i<DBFGetFieldCount(dbf_file); i++) {
-	  int width, decimals; 
-	  char title[12];
-	  DBFFieldType type = DBFGetFieldInfo(dbf_file, i, title, &width, &decimals);
-	  fprintf(stderr, "%d %s %d %d %d\n", i, title, type, width, decimals);
-	}
+    for (i=0; i<DBFGetFieldCount(dbf_file); i++) {
+      int width, decimals; 
+      char title[12];
+      DBFFieldType type = DBFGetFieldInfo(dbf_file, i, title, &width, &decimals);
+      fprintf(stderr, "%d %s %d %d %d\n", i, title, type, width, decimals);
+    }
   }
 
   // Finish
@@ -199,7 +199,7 @@ int get_columns(FILE* tsv_file, column** columns, int row) {
     if (c=='\n' || c=='\t') {
       (*columns)[n].type = type;
       (*columns)[n].width = width;
-	  if (debug) fprintf(stderr,"Column: %d %d %d\n", type, width, decimals);
+      if (debug) fprintf(stderr,"Column: %d %d %d\n", type, width, decimals);
       if (type==FTDouble) 
         (*columns)[n].decimals = decimals;
       n++;

@@ -1,47 +1,54 @@
 
-DBF2TSV provides two Unix command line utilities, dbf2tsv
-and tsv2dbf.
+DBF2TSV provides two Unix command line programs, dbf2tsv and tsv2dbf.
 
-dbf2tsv will convert a dBase/xBase database file with a 
-maximum of 30 fields to a Tab-Separated Value (TSV) file.  
-The TSV file is written on stdout.  The command line is:
+1. dbf2tsv
+
+dbf2tsv will convert a dBase/xBase database file with a maximum of 30
+fields to a Tab-Separated Value (TSV) file.  The TSV file is written
+on stdout.  The command line is:
 
    dbf2tsv dbf-filename
 
-tsv2dbf will create a dBase/xBase file from a Tab-Separated
-Value (TSV) file.  The input may have a maximum of 30
-columns, with a maximum field length of 4096 bytes and a
-maximum line length of 4096 bytes.  The lines in the file
-must be terminated, Unix-style, by line-feeds.  The first line
-in the file gives the tab-separated field names. Fields names
-are truncated to 10 bytes. The remaining lines are the tab-
-separated field values. The command line is:
+2. tsv2dbf
+
+tsv2dbf will create a dBase/xBase file from a Tab-Separated Value
+(TSV) file.  The input may have a maximum of 30 tab-separated values
+per line, with a maximum value length of 4096 bytes and a maximum line
+length of 4096 bytes.  The lines in the file must be terminated,
+Unix-style, by line-feeds.  The first line in the file gives the
+tab-separated field names. These are truncated to 10 bytes in the
+output DBF. The remaining lines of the input are data rows giving the
+tab-separated field values. The number of fields on a data row must
+agree with the number of fields given on the header row -- otherwise
+the data row is ignored.  The command line for tsv2dbf is:
 
    tsv2dbf tsv-filename dbf-filename
 
-Build the utilities as follows:
+3. Build
+
+Build the package as follows:
 
    cd <source-dir> 
    make
 
-The utilities have been tested only on a Linux Fedora 15
+The utilities have been tested only on a Linux Fedora 15 32-bit
 system, built with gcc version 4.6.0.
 
-The source files dbf.c and dbf.h are adapted from the
-shapelib library. (See http://shapelib.maptools.org)
-Shapelib is a library designed for handling geographic data
-in xBase format files.  The only substantive change I have
-made to shapelib is to move all the code related to dBase
-file handling into dbf.c and dbf.h. All the rest of the
-shapelib functionality has been removed.  These two files
-carry the copyright notice and permission notice from
-shapelib's original author, Frank Warmerdam.  Frank's code
-does all the hard stuff.
+4. Licensing
 
-I have placed the rest of the source into the public domain,
-as it is almost a trivial addition to the shapelib code
+The source files dbf.c and dbf.h are adapted from the shapelib
+library. (See http://shapelib.maptools.org/) Shapelib is a library
+designed for handling geographic data in xBase format files.  I have
+moved all the shapelib code related to dBase file handling into dbf.c
+and dbf.h, reformatted it somewhat, and removed the rest of shapelib.
+dbf.c and dbf.h carry the copyright notice and permission notice from
+shapelib's original author, Frank Warmerdam.  Frank's code does all
+the real work in this package.
+
+I am the author of the rest of the code.  I have placed it into the
+public domain, as it is almost a trivial addition to the shapelib code
 (though probably not trivial enough to be without bugs).
 
-Brian Mottershead (brian at mottershead.us)
+Brian Mottershead (brian at mottershead.us) 
 February 5, 2012
 

@@ -18,6 +18,7 @@ int main(int argc, char **argv){
   DBFHandle dbf_file = NULL; 
   int       width, decimals, i, r;
   char      title[12];
+  char      fmt[12];
 
   // Check that there is one argument, the input filename
   if (argc!=2) {
@@ -57,7 +58,8 @@ int main(int argc, char **argv){
           printf("%d", DBFReadIntegerAttribute(dbf_file,r,i));
           break;
         case FTDouble:
-          printf("%f", DBFReadDoubleAttribute(dbf_file,r,i));
+		  sprintf(fmt,"%%%d.%df",width, decimals);
+          printf(fmt, DBFReadDoubleAttribute(dbf_file,r,i));
           break;
         default:
           break;

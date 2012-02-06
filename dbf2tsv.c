@@ -58,7 +58,7 @@ int main(int argc, char **argv){
           printf("%d", DBFReadIntegerAttribute(dbf_file,r,i));
           break;
         case FTDouble:
-		  sprintf(fmt,"%%%d.%df",width, decimals);
+          sprintf(fmt,"%%%d.%df",width, decimals);
           printf(fmt, DBFReadDoubleAttribute(dbf_file,r,i));
           break;
         default:

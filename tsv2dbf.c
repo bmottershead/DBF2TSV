@@ -86,9 +86,9 @@ int main( int argc, char ** argv ) {
 
   // Initialize type, widths in header array
   for (j=0; j<num_columns; j++) {
-	fields[j].type=FTInteger;
-	fields[j].width=0;
-	fields[j].decimals=0;
+    fields[j].type=FTInteger;
+    fields[j].width=0;
+    fields[j].decimals=0;
   }
 
   // Loop through TSV data rows, determining the 
@@ -126,8 +126,8 @@ int main( int argc, char ** argv ) {
   
   // Define the fields of the  DBF file.
   for (i=0; i<num_columns; i++) {
-	if (debug) 
-	  dump_column("add", 0, i, &fields[i]);
+    if (debug) 
+      dump_column("add", 0, i, &fields[i]);
     int ret=DBFAddField(dbf_file, fields[i].value, fields[i].type, 
                 fields[i].width, fields[i].decimals);
     if (ret==-1) 
@@ -148,7 +148,7 @@ int main( int argc, char ** argv ) {
     for (j=0; j<num_columns; j++) {
       int ret=0;
       if (debug)
-		dump_column("col", i, j, &columns[j]);
+        dump_column("col", i, j, &columns[j]);
       switch (fields[j].type) {
       case FTInteger:
         ret=DBFWriteIntegerAttribute(dbf_file, i, j, atoi(columns[j].value));
